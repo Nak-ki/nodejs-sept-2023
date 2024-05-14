@@ -63,6 +63,18 @@ export class UserValidator {
     phone: this.phone,
     age: this.age,
   });
+  public static login = joi.object({
+    email: this.email.required(),
+    password: this.password.required(),
+  });
+
+  public static forgotPassword = joi.object({
+    email: this.email.required(),
+  });
+
+  public static setForgotPassword = joi.object({
+    password: this.password.required(),
+  });
 }
 //
 // const updateSchema = Joi.object({

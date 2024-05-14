@@ -1,13 +1,10 @@
 import { ApiError } from "../api-error";
+import { IUser } from "../interfaces/user.interface";
 import { userRepository } from "../repositories/user.repository";
-import { IUser } from "../user.interface";
 
 class UserService {
   public async getList(): Promise<IUser[]> {
     return await userRepository.getList();
-  }
-  public async createUser(dto: Partial<IUser>): Promise<IUser> {
-    return await userRepository.createUser(dto);
   }
   public async getUser(userId: string): Promise<IUser> {
     return await this.findUserOrThrow(userId);
