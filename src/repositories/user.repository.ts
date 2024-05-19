@@ -16,6 +16,11 @@ class UserRepository {
       returnDocument: "after",
     });
   }
+  public async updateById(id: string, dto: Partial<IUser>): Promise<IUser> {
+    return await User.findByIdAndUpdate(id, dto, {
+      returnDocument: "after",
+    });
+  }
   public async deleteUser(userId: string): Promise<void> {
     await User.deleteOne({ _id: userId });
   }

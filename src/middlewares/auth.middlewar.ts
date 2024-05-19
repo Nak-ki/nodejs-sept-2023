@@ -1,6 +1,8 @@
 import { NextFunction, Request, Response } from "express";
 
 import { ApiError } from "../api-error";
+import { errorMessages } from "../constants/error-messages.constant";
+import { statusCodes } from "../constants/status-codes.constant";
 import { ActionTokenTypeEnum } from "../enums/action-token-type.enum";
 import { TokenTypeEnum } from "../enums/token-type.enum";
 import { actionTokenRepository } from "../repositories/action-token.repository";
@@ -53,33 +55,33 @@ class AuthMiddleware {
       next(e);
     }
   }
-  public async checkActionToken(
-    req: Request,
-    res: Response,
-    next: NextFunction,
-  ) {
-    try {
-      const actionToken = req.query.token as string;
-      if (!actionToken) {
-        throw new ApiError("No token provided", 400);
-      }
-      const payload = tokenService.checkActionToken(
-        actionToken,
-        ActionTokenTypeEnum.FORGOT,
-      );
-      const entity = await actionTokenRepository.findByParams({
-        actionToken,
-      });
-      if (!entity) {
-        throw new ApiError("Invalid token", 401);
-      }
+  public checkActionToken(type: ActionTokenTypeEnum, key = "token") {
+    return async (req: Request, res: Response, next: NextFunction) => {
+      try {
+        const actionToken = req.query[key] as string;
+        if (!actionToken) {
+          throw new ApiError(
+            errorMessages.NO_TOKEN_PROVIDER,
+            statusCodes.BAD_REQUEST,
+          );
+        }
+        const payload = tokenService.checkActionToken(actionToken, type);
 
-      req.res.locals.jwtPayload = payload;
-
-      next();
-    } catch (e) {
-      next(e);
-    }
+        const entity = await actionTokenRepository.findByParams({
+          actionToken,
+        });
+        if (!entity) {
+          throw new ApiError(
+            errorMessages.INVALID_TOKEN,
+            statusCodes.UNAUTHORIZED,
+          );
+        }
+        req.res.locals.jwtPayload = payload;
+        next();
+      } catch (e) {
+        next(e);
+      }
+    };
   }
 }
 

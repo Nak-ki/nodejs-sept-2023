@@ -2,15 +2,19 @@ import { EmailTypeEnum } from "../enums/email-type.enum";
 
 export const emailTemplateConstant = {
   [EmailTypeEnum.WELCOME]: {
-    templateId: " d-fdc8b7083b7b480984ababb0cac017ce",
+    templateName: "register",
+    subject: "Welcome to our app",
   },
   [EmailTypeEnum.RESET_PASSWORD]: {
-    templateId: " d-277dadc9e2cf44d0a337a83e41ca36c8",
+    templateName: "reset-password",
+    subject: "Your password has been reset",
   },
   [EmailTypeEnum.DELETE_ACCOUNT]: {
-    templateId: "",
+    templateName: "delete-account",
+    subject: "Your account has been deleted",
   },
   [EmailTypeEnum.LOGOUT]: {
-    templateId: "",
+    templateName: "logout",
+    subject: "LOGOUT",
   },
 };

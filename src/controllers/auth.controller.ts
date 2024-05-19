@@ -1,9 +1,12 @@
 import { NextFunction, Request, Response } from "express";
 
+import { statusCodes } from "../constants/status-codes.constant";
 import { IForgot, ISetForgot } from "../interfaces/action-token.interface";
 import { IJwtPayload } from "../interfaces/jwt-payload.interface";
 import { IToken } from "../interfaces/token.interface";
 import { IUser } from "../interfaces/user.interface";
+import { AuthPresenter } from "../presenters/auth.presenters";
+import { UserPresenter } from "../presenters/user.presenters";
 import { authService } from "../services/auth.service";
 
 class AuthController {
@@ -11,7 +14,7 @@ class AuthController {
     try {
       const dto = req.body as Partial<IUser>;
       const data = await authService.signUp(dto);
-      res.status(201).json(data);
+      res.status(201).json(AuthPresenter.toResponseDto(data));
     } catch (e) {
       next(e);
     }
@@ -20,7 +23,7 @@ class AuthController {
     try {
       const dto = req.body as { email: string; password: string };
       const data = await authService.signIn(dto);
-      res.status(201).json(data);
+      res.status(201).json(AuthPresenter.toResponseDto(data));
     } catch (e) {
       next(e);
     }
@@ -56,6 +59,18 @@ class AuthController {
 
       await authService.setForgotPassword(body, jwtPayload);
       res.sendStatus(204);
+    } catch (e) {
+      next(e);
+    }
+  }
+  public async verify(req: Request, res: Response, next: NextFunction) {
+    try {
+      const jwtPayload = req.res.locals.jwtPayload as IJwtPayload;
+
+      const user = await authService.verify(jwtPayload);
+      res
+        .status(statusCodes.CREATED)
+        .json(UserPresenter.toPrivateResponseDto(user));
     } catch (e) {
       next(e);
     }

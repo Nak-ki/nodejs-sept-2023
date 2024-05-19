@@ -2,6 +2,8 @@ import * as jsonwebtoken from "jsonwebtoken";
 
 import { ApiError } from "../api-error";
 import { config } from "../configs/config";
+import { errorMessages } from "../constants/error-messages.constant";
+import { statusCodes } from "../constants/status-codes.constant";
 import { ActionTokenTypeEnum } from "../enums/action-token-type.enum";
 import { TokenTypeEnum } from "../enums/token-type.enum";
 import { IJwtPayload } from "../interfaces/jwt-payload.interface";
@@ -54,8 +56,15 @@ class TokenService {
         expiresIn = config.JWT_ACTION_FORGOT_EXPIRES_IN;
         break;
 
+      case ActionTokenTypeEnum.VERIFY:
+        secret = config.JWT_ACTION_VERIFY_TOKEN_SECRET;
+        expiresIn = config.JWT_ACTION_VERIFY_EXPIRES_IN;
+        break;
       default:
-        throw new ApiError("Invalid token type", 500);
+        throw new ApiError(
+          errorMessages.INVALID_TOKEN_TYPE,
+          statusCodes.INTERNAL_SERVER_ERROR,
+        );
     }
     return jsonwebtoken.sign(payload, secret, { expiresIn });
   }
@@ -73,10 +82,14 @@ class TokenService {
           break;
 
         case ActionTokenTypeEnum.VERIFY:
+          secret = config.JWT_ACTION_VERIFY_TOKEN_SECRET;
           break;
 
         default:
-          throw new ApiError("Invalid token type", 500);
+          throw new ApiError(
+            errorMessages.INVALID_TOKEN_TYPE,
+            statusCodes.INTERNAL_SERVER_ERROR,
+          );
       }
 
       return jsonwebtoken.verify(token, secret) as IJwtPayload;

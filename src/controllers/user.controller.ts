@@ -1,13 +1,16 @@
 import { NextFunction, Request, Response } from "express";
 
+import { statusCodes } from "../constants/status-codes.constant";
+import { IJwtPayload } from "../interfaces/jwt-payload.interface";
 import { IUser } from "../interfaces/user.interface";
+import { UserPresenter } from "../presenters/user.presenters";
 import { userService } from "../services/user.service";
 
 class UserController {
   public async getList(req: Request, res: Response, next: NextFunction) {
     try {
       const users = await userService.getList();
-      res.json(users);
+      res.json(UserPresenter.toPublicResponseListDto(users));
     } catch (e) {
       next(e);
     }
@@ -16,26 +19,41 @@ class UserController {
     try {
       const userId = req.params.id;
       const user = await userService.getUser(userId);
-      res.json(user);
+      res.json(UserPresenter.toPublicResponseDto(user));
     } catch (e) {
       next(e);
     }
   }
-  public async updateUser(req: Request, res: Response, next: NextFunction) {
+  public async getMe(req: Request, res: Response, next: NextFunction) {
     try {
-      const userId = req.params.id;
+      const jwtPayload = req.res.locals.jwtPayload as IJwtPayload;
+      const user = await userService.findMe(jwtPayload.userId);
+
+      res.status(statusCodes.OK).json(UserPresenter.toPrivateResponseDto(user));
+    } catch (e) {
+      next(e);
+    }
+  }
+
+  public async updateMe(req: Request, res: Response, next: NextFunction) {
+    try {
+      const jwtPayload = req.res.locals.jwtPayload as IJwtPayload;
       const dto = req.body as Partial<IUser>;
-      const user = await userService.updateUser(userId, dto);
-      res.status(201).json(user);
+      const updateUser = await userService.updateMe(jwtPayload.userId, dto);
+
+      res
+        .status(statusCodes.OK)
+        .json(UserPresenter.toPrivateResponseDto(updateUser));
     } catch (e) {
       next(e);
     }
   }
-  public async deleteUser(req: Request, res: Response, next: NextFunction) {
+
+  public async deleteMe(req: Request, res: Response, next: NextFunction) {
     try {
-      const userId = req.params.id;
-      await userService.deleteUser(userId);
-      res.sendStatus(204);
+      const jwtPayload = req.res.locals.jwtPayload as IJwtPayload;
+      await userService.deleteMe(jwtPayload.userId);
+      res.sendStatus(statusCodes.NO_CONTENT);
     } catch (e) {
       next(e);
     }
