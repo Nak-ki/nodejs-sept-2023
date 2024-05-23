@@ -34,11 +34,11 @@ router.put(
   authMiddleware.checkActionToken(ActionTokenTypeEnum.FORGOT),
   authController.setForgotPassword,
 );
-router.put(
-  "/verify",
-
-  authMiddleware.checkActionToken(ActionTokenTypeEnum.VERIFY),
-  authController.verify,
+router.patch(
+  "/change-password",
+  authMiddleware.checkAccessToken,
+  commonMiddleware.isBodyValid(UserValidator.setChangePassword),
+  authController.setChangePassword,
 );
 
 export const authRouter = router;

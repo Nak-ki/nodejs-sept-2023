@@ -17,4 +17,8 @@ export const emailTemplateConstant = {
     templateName: "logout",
     subject: "LOGOUT",
   },
+  [EmailTypeEnum.RETURN]: {
+    templateName: "return-to-our-app",
+    subject: "RETURN",
+  },
 };

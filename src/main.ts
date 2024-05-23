@@ -3,6 +3,7 @@ import * as mongoose from "mongoose";
 
 import { ApiError } from "./api-error";
 import { config } from "./configs/config";
+import { runCronJob } from "./crons";
 import { authRouter } from "./routers/auth.router";
 import { userRouter } from "./routers/user.router";
 
@@ -29,4 +30,5 @@ app.listen(config.PORT, config.HOST, async () => {
   console.log(config.PORT, config.HOST, config.MONGO_URL);
   await mongoose.connect(config.MONGO_URL);
   console.log(`Server is running at http://${config.HOST}:${config.PORT}/`);
+  runCronJob();
 });

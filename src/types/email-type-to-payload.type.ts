@@ -19,4 +19,9 @@ export type EmailTypeToPayloadType = {
   >;
 
   [EmailTypeEnum.LOGOUT]: PickRequired<EmailCombinedPayloadType, "name">;
+
+  [EmailTypeEnum.RETURN]: PickRequired<
+    EmailCombinedPayloadType,
+    "name" | "frontUrl"
+  >;
 };

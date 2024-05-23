@@ -1,6 +1,10 @@
+import { UploadedFile } from "express-fileupload";
+
 import { ApiError } from "../api-error";
+import { FileItemTypeEnum } from "../enums/file-item-type.enum";
 import { IUser } from "../interfaces/user.interface";
 import { userRepository } from "../repositories/user.repository";
+import { s3Service } from "./s3.service";
 
 class UserService {
   public async getList(): Promise<IUser[]> {
@@ -27,6 +31,34 @@ class UserService {
       throw new ApiError("user not found", 404);
     }
     return user;
+  }
+  public async uploadAvatar(
+    userId: string,
+    avatar: UploadedFile,
+  ): Promise<IUser> {
+    const user = await this.findUserOrThrow(userId);
+
+    if (user.avatar) {
+      await s3Service.deleteFile(user.avatar);
+    }
+
+    const filePath = await s3Service.uploadFile(
+      avatar,
+      FileItemTypeEnum.USER,
+      user._id,
+    );
+
+    return await userRepository.updateById(userId, { avatar: filePath });
+  }
+
+  public async deleteAvatar(userId: string): Promise<IUser> {
+    const user = await this.findUserOrThrow(userId);
+
+    if (!user.avatar) {
+      await s3Service.deleteFile(user.avatar);
+    }
+
+    return await userRepository.updateById(userId, { avatar: null });
   }
 }
 
